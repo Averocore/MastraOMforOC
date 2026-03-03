@@ -19,3 +19,4 @@ coverage/
 next-env.d.ts
 *.tsbuildinfo
 nul
+opencode_om.db

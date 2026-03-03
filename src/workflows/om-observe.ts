@@ -6,12 +6,13 @@ export async function forceObserve(threadId: string, externalMessages?: any[]) {
   console.log(`[OM] Manual observation triggered for thread: ${threadId}`);
   
   try {
-    // Access the internal memory observation system
+    // Note: The `observe` method exists in the implementation but is not publicly typed
+    // We use type assertion to access it for manual observation triggers
     const mem = memory as any;
     
-    // Check if observational memory is available
-    if (mem.observationalMemory) {
-      await mem.observationalMemory.observe({
+    // Check if the observe method is available
+    if (typeof mem.observe === 'function') {
+      await mem.observe({
         threadId,
         messages: externalMessages,
         hooks: {
@@ -21,8 +22,10 @@ export async function forceObserve(threadId: string, externalMessages?: any[]) {
           onReflectionEnd:    () => console.log('[OM] reflection end')
         }
       });
+      console.log('[OM] Observation completed successfully');
     } else {
-      console.log('[OM] Observational memory not available in current implementation');
+      console.log('[OM] Manual observation not available in current API');
+      console.log('[OM] Observation happens automatically during agent generation');
     }
     
     return { threadId, messages: externalMessages, observed: true };

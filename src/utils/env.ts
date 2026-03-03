@@ -1,5 +1,8 @@
 // src/utils/env.ts
 // Environment configuration with validation
+import { config } from 'dotenv';
+
+config();
 
 export interface EnvConfig {
   DATABASE_URL: string;
@@ -8,6 +11,7 @@ export interface EnvConfig {
   OPENAI_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
   GOOGLE_API_KEY?: string;
+  OPENROUTER_API_KEY?: string;
 }
 
 export function loadEnv(): EnvConfig {
@@ -19,7 +23,8 @@ export function loadEnv(): EnvConfig {
     OM_MODEL: process.env.OM_MODEL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY
+    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY
   };
 
   if (!config.DATABASE_URL) {
