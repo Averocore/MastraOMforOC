@@ -2,14 +2,17 @@
 // Direct-wiring runtime handler for OpenCode → Mastra agent.
 import { agent } from '../mastra/agent.js';
 import { getMemoryRecord } from '../mastra/memory.js';
+import { logger } from '@utils/logger.js';
 
 export async function handleMessage(threadId: string, userText: string) {
+  logger.info('Handling message', { threadId, messageLength: userText.length });
+
   try {
     // Pre-warm memory for this thread
     await getMemoryRecord(threadId);
-    
+    logger.debug('Memory pre-warmed', { threadId });
+
     // Execute agent response with thread context
-    // Agent.generate expects messages array with memory thread and resource
     const response = await agent.generate([
       { role: 'user', content: userText }
     ], {
@@ -19,9 +22,17 @@ export async function handleMessage(threadId: string, userText: string) {
       }
     });
 
+    logger.info('Agent response generated', {
+      threadId,
+      outputLength: response.text?.length || 0
+    });
+
     return response.text;
   } catch (error) {
-    console.error(`[Runtime] Error handling message for thread ${threadId}:`, error);
+    logger.error('Error handling message', {
+      threadId,
+      error: error instanceof Error ? error.message : String(error)
+    });
     throw error;
   }
 }
