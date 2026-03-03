@@ -1,12 +1,33 @@
 // src/workflows/om-observe.ts
-// Manual observation trigger for OM
-// Note: Actual observational memory is handled automatically by the agent
+// Manual observation trigger for OM with hooks support
+import { memory } from '../mastra/memory.js';
+
 export async function forceObserve(threadId: string, externalMessages?: any[]) {
   console.log(`[OM] Manual observation triggered for thread: ${threadId}`);
   
-  // In the current Mastra OM implementation, observations are automatically
-  // processed during agent runs. This function exists for explicit control points.
-  // For immediate observation, use the agent's memory system directly.
-  
-  return { threadId, messages: externalMessages, observed: true };
+  try {
+    // Access the internal memory observation system
+    const mem = memory as any;
+    
+    // Check if observational memory is available
+    if (mem.observationalMemory) {
+      await mem.observationalMemory.observe({
+        threadId,
+        messages: externalMessages,
+        hooks: {
+          onObservationStart: () => console.log(`[OM] observation start (${threadId})`),
+          onObservationEnd:   () => console.log('[OM] observation end'),
+          onReflectionStart:  () => console.log('[OM] reflection start'),
+          onReflectionEnd:    () => console.log('[OM] reflection end')
+        }
+      });
+    } else {
+      console.log('[OM] Observational memory not available in current implementation');
+    }
+    
+    return { threadId, messages: externalMessages, observed: true };
+  } catch (error) {
+    console.error(`[OM] Error during observation for thread ${threadId}:`, error);
+    throw error;
+  }
 }
